@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <link rel="icon" type="image/png" href="/favicon.ico.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoPonto Digital - Acesso</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="login-page">
+
+    <div class="login-bg-decoration"></div>
+
+    <nav class="login-nav">
+        <div class="container mx-auto px-6 flex justify-between items-center">
+            <a href="/" class="login-brand">
+                <i class="fas fa-recycle"></i>
+                <span>EcoPonto <strong>Digital</strong></span>
+            </a>
+            <a href="/" class="login-back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Voltar ao início
+            </a>
+        </div>
+    </nav>
+
+    <main class="login-main">
+
+        <div class="login-hero">
+            <div class="login-hero-icon">
+                <i class="fas fa-recycle"></i>
+            </div>
+            <h1 class="login-hero-title">Como deseja acessar?</h1>
+            <p class="login-hero-subtitle">Escolha seu perfil para continuar no EcoPonto Digital</p>
+        </div>
+
+        <div class="login-cards">
+
+            <div class="login-card login-card--cliente">
+                <span class="login-card__badge">Cidadão</span>
+                <div class="login-card__icon-wrap login-card__icon-wrap--cliente">
+                    <i class="fas fa-user-house"></i>
+                </div>
+                <h2 class="login-card__title">Sou Cliente</h2>
+                <p class="login-card__desc">Encontre pontos de coleta próximos ou agende uma retirada de recicláveis na sua residência ou empresa.</p>
+                <ul class="login-card__features">
+                    <li><i class="fas fa-check"></i> Agendamento de coleta</li>
+                    <li><i class="fas fa-check"></i> Mapa de ecopontos</li>
+                    <li><i class="fas fa-check"></i> Guia de descarte</li>
+                </ul>
+                <a href="/solicitar-coleta" class="login-card__btn login-card__btn--cliente">
+                    Acessar como Cliente
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <div class="login-card login-card--colaborador">
+                <span class="login-card__badge login-card__badge--colaborador">Cooperativa</span>
+                <div class="login-card__icon-wrap login-card__icon-wrap--colaborador">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <h2 class="login-card__title">Sou Colaborador</h2>
+                <p class="login-card__desc">Faço parte de uma cooperativa e desejo gerenciar as solicitações de coleta e acompanhar os agendamentos.</p>
+                <ul class="login-card__features">
+                    <li><i class="fas fa-check"></i> Painel de agendamentos</li>
+                    <li><i class="fas fa-check"></i> Atualização de status</li>
+                    <li><i class="fas fa-check"></i> Visão geral das coletas</li>
+                </ul>
+                <a href="/painel-cooperativa" class="login-card__btn login-card__btn--colaborador">
+                    Acessar Painel
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+        </div>
+
+    </main>
+
+    <footer class="login-footer">
+        &copy; 2026 EcoPonto Digital &mdash; Projeto ODS 11 &amp; 12
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <link rel="icon" type="image/png" href="favicon.ico.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoPonto Digital - Solicitar Coleta</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-gradient-to-br from-emerald-50 via-white to-green-50 min-h-screen flex flex-col">
+
+    <nav class="site-nav">
+        <div class="site-nav__inner">
+            <a href="/" class="site-nav__brand">
+                <i class="fas fa-recycle"></i>
+                <span>EcoPonto <strong>Digital</strong></span>
+            </a>
+            <a href="/login" class="site-nav__back">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </a>
+        </div>
+    </nav>
+
+    <main class="flex-grow flex items-center justify-center p-6">
+        <div class="max-w-xl w-full">
+
+            <!-- Cabeçalho -->
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-truck text-3xl text-emerald-600"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-slate-800">Solicitar Coleta</h1>
+                <p class="text-slate-500 mt-2">Preencha os dados para agendar a retirada dos seus recicláveis.</p>
+            </div>
+
+            <!-- Indicador de progresso -->
+            <div class="flex items-center justify-center gap-2 mb-8">
+                <div id="dot1" class="w-3 h-3 rounded-full bg-emerald-600 transition-all"></div>
+                <div class="w-12 h-1 bg-slate-200 rounded"></div>
+                <div id="dot2" class="w-3 h-3 rounded-full bg-slate-300 transition-all"></div>
+                <div class="w-12 h-1 bg-slate-200 rounded"></div>
+                <div id="dot3" class="w-3 h-3 rounded-full bg-slate-300 transition-all"></div>
+            </div>
+
+            <!-- Card do formulário -->
+            <div class="bg-white rounded-3xl shadow-xl p-8 border border-emerald-100">
+
+                <!-- STEP 1: Dados pessoais -->
+                <div class="step ativo" id="step1">
+                    <h2 class="text-lg font-bold text-slate-700 mb-5"><i class="fas fa-user text-emerald-500 mr-2"></i>Seus dados</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-600 mb-1">Nome completo *</label>
+                            <input id="nome" type="text" placeholder="Ex: João Silva" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-600 mb-1">Telefone / WhatsApp *</label>
+                            <input id="telefone" type="tel" placeholder="(81) 99999-9999" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-600 mb-1">Endereço completo *</label>
+                            <input id="endereco" type="text" placeholder="Rua, número, bairro - Recife" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition">
+                        </div>
+                    </div>
+                    <button onclick="irStep(2)" class="mt-6 w-full bg-emerald-600 text-white font-bold py-4 rounded-xl hover:bg-emerald-700 transition shadow-lg shadow-emerald-100">
+                        Próximo <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+
+                <!-- STEP 2: Tipo de resíduo e data -->
+                <div class="step" id="step2">
+                    <h2 class="text-lg font-bold text-slate-700 mb-5"><i class="fas fa-recycle text-emerald-500 mr-2"></i>O que será coletado?</h2>
+
+                    <label class="block text-sm font-semibold text-slate-600 mb-3">Tipo de resíduo *</label>
+                    <div class="grid grid-cols-2 gap-3 mb-5">
+                        <button onclick="selecionarTipo(this, 'Papel/Papelão')" class="tipo-btn border-2 border-slate-200 rounded-xl py-3 px-2 text-sm font-semibold text-slate-600 hover:border-emerald-500 transition">
+                            <i class="fas fa-newspaper block text-2xl mb-1 text-blue-400"></i>Papel / Papelão
+                        </button>
+                        <button onclick="selecionarTipo(this, 'Plástico')" class="tipo-btn border-2 border-slate-200 rounded-xl py-3 px-2 text-sm font-semibold text-slate-600 hover:border-emerald-500 transition">
+                            <i class="fas fa-bottle-water block text-2xl mb-1 text-yellow-400"></i>Plástico
+                        </button>
+                        <button onclick="selecionarTipo(this, 'Metal')" class="tipo-btn border-2 border-slate-200 rounded-xl py-3 px-2 text-sm font-semibold text-slate-600 hover:border-emerald-500 transition">
+                            <i class="fas fa-cog block text-2xl mb-1 text-pink-400"></i>Metal
+                        </button>
+                        <button onclick="selecionarTipo(this, 'Vidro')" class="tipo-btn border-2 border-slate-200 rounded-xl py-3 px-2 text-sm font-semibold text-slate-600 hover:border-emerald-500 transition">
+                            <i class="fas fa-wine-bottle block text-2xl mb-1 text-green-400"></i>Vidro
+                        </button>
+                        <button onclick="selecionarTipo(this, 'Eletrônico')" class="tipo-btn border-2 border-slate-200 rounded-xl py-3 px-2 text-sm font-semibold text-slate-600 hover:border-emerald-500 transition">
+                            <i class="fas fa-laptop block text-2xl mb-1 text-purple-400"></i>Eletrônico
+                        </button>
+                        <button onclick="selecionarTipo(this, 'Misto')" class="tipo-btn border-2 border-slate-200 rounded-xl py-3 px-2 text-sm font-semibold text-slate-600 hover:border-emerald-500 transition">
+                            <i class="fas fa-boxes-stacked block text-2xl mb-1 text-slate-400"></i>Misto
+                        </button>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-semibold text-slate-600 mb-1">Data preferida para coleta *</label>
+                        <input id="data_coleta" type="date" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition">
+                    </div>
+
+                    <div class="flex gap-3 mt-6">
+                        <button onclick="irStep(1)" class="flex-1 border-2 border-slate-200 text-slate-600 font-semibold py-3 rounded-xl hover:bg-slate-50 transition">
+                            <i class="fas fa-arrow-left mr-2"></i>Voltar
+                        </button>
+                        <button onclick="irStep(3)" class="flex-1 bg-emerald-600 text-white font-bold py-3 rounded-xl hover:bg-emerald-700 transition shadow-lg shadow-emerald-100">
+                            Próximo <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 3: Observações e envio -->
+                <div class="step" id="step3">
+                    <h2 class="text-lg font-bold text-slate-700 mb-5"><i class="fas fa-clipboard-check text-emerald-500 mr-2"></i>Confirmação</h2>
+
+                    <div id="resumo" class="bg-emerald-50 rounded-2xl p-4 mb-5 space-y-2 text-sm text-slate-700 border border-emerald-100"></div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1">Observações (opcional)</label>
+                        <textarea id="observacoes" rows="3" placeholder="Ex: Portão azul, campainha no interfone..." class="w-full border border-slate-200 rounded-xl px-4 py-3 text-slate-800 transition resize-none"></textarea>
+                    </div>
+
+                    <div id="msg-erro" class="hidden mt-4 bg-red-50 text-red-600 text-sm rounded-xl px-4 py-3 border border-red-200"></div>
+                    <div id="msg-sucesso" class="hidden mt-4 bg-emerald-50 text-emerald-700 text-sm rounded-xl px-4 py-3 border border-emerald-200 text-center font-semibold"></div>
+
+                    <div class="flex gap-3 mt-6">
+                        <button onclick="irStep(2)" class="flex-1 border-2 border-slate-200 text-slate-600 font-semibold py-3 rounded-xl hover:bg-slate-50 transition">
+                            <i class="fas fa-arrow-left mr-2"></i>Voltar
+                        </button>
+                        <button onclick="enviar()" id="btn-enviar" class="flex-1 bg-emerald-600 text-white font-bold py-3 rounded-xl hover:bg-emerald-700 transition shadow-lg shadow-emerald-100">
+                            <i class="fas fa-paper-plane mr-2"></i>Confirmar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        &copy; 2026 EcoPonto Digital &mdash; Projeto ODS 11 &amp; 12
+    </footer>
+
+    <script>
+        let tipoSelecionado = '';
+
+        function irStep(n) {
+            // Validações por step
+            if (n === 2) {
+                if (!document.getElementById('nome').value.trim() ||
+                    !document.getElementById('telefone').value.trim() ||
+                    !document.getElementById('endereco').value.trim()) {
+                    alert('Preencha todos os campos obrigatórios!');
+                    return;
+                }
+            }
+            if (n === 3) {
+                if (!tipoSelecionado) { alert('Selecione o tipo de resíduo!'); return; }
+                if (!document.getElementById('data_coleta').value) { alert('Selecione uma data!'); return; }
+                mostrarResumo();
+            }
+
+            document.querySelectorAll('.step').forEach(s => s.classList.remove('ativo'));
+            document.getElementById('step' + n).classList.add('ativo');
+
+            // Atualizar dots
+            ['dot1','dot2','dot3'].forEach((id, i) => {
+                document.getElementById(id).className = (i + 1) <= n
+                    ? 'w-3 h-3 rounded-full bg-emerald-600 transition-all'
+                    : 'w-3 h-3 rounded-full bg-slate-300 transition-all';
+            });
+        }
+
+        function selecionarTipo(btn, tipo) {
+            document.querySelectorAll('.tipo-btn').forEach(b => b.classList.remove('selecionado'));
+            btn.classList.add('selecionado');
+            tipoSelecionado = tipo;
+        }
+
+        function mostrarResumo() {
+            const data = new Date(document.getElementById('data_coleta').value + 'T00:00:00');
+            const dataFormatada = data.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+            document.getElementById('resumo').innerHTML = `
+                <div><i class="fas fa-user text-emerald-500 mr-2"></i><strong>Nome:</strong> ${document.getElementById('nome').value}</div>
+                <div><i class="fas fa-phone text-emerald-500 mr-2"></i><strong>Telefone:</strong> ${document.getElementById('telefone').value}</div>
+                <div><i class="fas fa-map-marker-alt text-emerald-500 mr-2"></i><strong>Endereço:</strong> ${document.getElementById('endereco').value}</div>
+                <div><i class="fas fa-recycle text-emerald-500 mr-2"></i><strong>Resíduo:</strong> ${tipoSelecionado}</div>
+                <div><i class="fas fa-calendar text-emerald-500 mr-2"></i><strong>Data:</strong> ${dataFormatada}</div>
+            `;
+        }
+
+        async function enviar() {
+            const btn = document.getElementById('btn-enviar');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Enviando...';
+
+            const dados = {
+                nome: document.getElementById('nome').value,
+                telefone: document.getElementById('telefone').value,
+                endereco: document.getElementById('endereco').value,
+                tipo_residuo: tipoSelecionado,
+                data_coleta: document.getElementById('data_coleta').value,
+                observacoes: document.getElementById('observacoes').value
+            };
+
+            try {
+                const resp = await fetch('/api/agendamento', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dados)
+                });
+                const json = await resp.json();
+
+                if (resp.ok) {
+                    document.getElementById('msg-sucesso').textContent = '✅ Agendamento realizado! A cooperativa entrará em contato em breve.';
+                    document.getElementById('msg-sucesso').classList.remove('hidden');
+                    document.getElementById('msg-erro').classList.add('hidden');
+                    btn.classList.add('hidden');
+                } else {
+                    throw new Error(json.erro || 'Erro ao enviar.');
+                }
+            } catch (e) {
+                document.getElementById('msg-erro').textContent = '❌ ' + e.message;
+                document.getElementById('msg-erro').classList.remove('hidden');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Confirmar';
+            }
+        }
+
+        // Data mínima = amanhã
+        const amanha = new Date();
+        amanha.setDate(amanha.getDate() + 1);
+        document.getElementById('data_coleta').min = amanha.toISOString().split('T')[0];
+    </script>
+</body>
+</html>

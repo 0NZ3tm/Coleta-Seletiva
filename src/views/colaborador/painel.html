@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+     <link rel="icon" type="image/png" href="/favicon.ico.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoPonto Digital - Painel da Cooperativa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-slate-100 min-h-screen flex flex-col">
+
+    <!-- Header do painel -->
+    <header class="bg-gradient-to-r from-green-700 to-emerald-600 text-white px-6 py-4 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-recycle text-xl"></i>
+                </div>
+                <div>
+                    <div class="font-bold text-lg">EcoPonto Digital</div>
+                    <div class="text-emerald-200 text-xs">Painel da Cooperativa</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="carregarAgendamentos()" class="flex items-center gap-2 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-xl text-sm font-semibold transition">
+                    <i class="fas fa-rotate-right"></i> Atualizar
+                </button>
+                <a href="/" class="text-emerald-200 hover:text-white transition text-sm">
+                    <i class="fas fa-arrow-left mr-1"></i> Sair
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-6 flex-grow">
+
+        <!-- Cards de resumo -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
+                <div class="text-2xl font-bold text-slate-800" id="total-count">—</div>
+                <div class="text-sm text-slate-500 mt-1"><i class="fas fa-clipboard-list text-slate-400 mr-1"></i>Total de coletas</div>
+            </div>
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-yellow-100">
+                <div class="text-2xl font-bold text-yellow-600" id="pendente-count">—</div>
+                <div class="text-sm text-slate-500 mt-1"><i class="fas fa-clock text-yellow-400 mr-1"></i>Pendentes</div>
+            </div>
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-blue-100">
+                <div class="text-2xl font-bold text-blue-600" id="andamento-count">—</div>
+                <div class="text-sm text-slate-500 mt-1"><i class="fas fa-truck text-blue-400 mr-1"></i>Em andamento</div>
+            </div>
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-emerald-100">
+                <div class="text-2xl font-bold text-emerald-600" id="concluido-count">—</div>
+                <div class="text-sm text-slate-500 mt-1"><i class="fas fa-check-circle text-emerald-400 mr-1"></i>Concluídas</div>
+            </div>
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-red-100">
+                <div class="text-2xl font-bold text-red-500" id="cancelado-count">—</div>
+                <div class="text-sm text-slate-500 mt-1"><i class="fas fa-times-circle text-red-400 mr-1"></i>Canceladas</div>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm mb-6 flex flex-wrap gap-3 items-center">
+            <span class="text-sm font-semibold text-slate-600">Filtrar:</span>
+            <button onclick="filtrar('todos')" class="filtro-btn ativo text-sm px-4 py-2 rounded-xl bg-green-600 text-white font-semibold">Todos</button>
+            <button onclick="filtrar('pendente')" class="filtro-btn text-sm px-4 py-2 rounded-xl bg-slate-100 text-slate-600 font-semibold hover:bg-yellow-100 transition">⏳ Pendentes</button>
+            <button onclick="filtrar('em_andamento')" class="filtro-btn text-sm px-4 py-2 rounded-xl bg-slate-100 text-slate-600 font-semibold hover:bg-blue-100 transition">🚛 Em andamento</button>
+            <button onclick="filtrar('concluido')" class="filtro-btn text-sm px-4 py-2 rounded-xl bg-slate-100 text-slate-600 font-semibold hover:bg-emerald-100 transition">✅ Concluídos</button>
+            <button onclick="filtrar('cancelado')" class="filtro-btn text-sm px-4 py-2 rounded-xl bg-slate-100 text-slate-600 font-semibold hover:bg-red-100 transition">❌ Cancelados</button>
+            <div class="ml-auto">
+                <input id="busca" onkeyup="buscar()" type="text" placeholder="Buscar por nome ou bairro..." class="border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-emerald-400">
+            </div>
+        </div>
+
+        <!-- Estado de carregamento -->
+        <div id="loading" class="text-center py-12 text-slate-400">
+            <i class="fas fa-spinner fa-spin text-3xl mb-3"></i>
+            <div>Carregando agendamentos...</div>
+        </div>
+
+        <!-- Estado vazio -->
+        <div id="estado-vazio" class="hidden text-center py-16 text-slate-400">
+            <i class="fas fa-clipboard text-5xl mb-4 opacity-40"></i>
+            <div class="text-lg font-semibold">Nenhuma coleta encontrada</div>
+            <div class="text-sm mt-1">Os agendamentos dos clientes aparecerão aqui.</div>
+        </div>
+
+        <!-- Lista de agendamentos -->
+        <div id="lista-agendamentos" class="space-y-4 hidden"></div>
+    </main>
+
+    <footer class="site-footer">
+        &copy; 2026 EcoPonto Digital &mdash; Painel Operacional
+    </footer>
+
+    <script>
+        let todosAgendamentos = [];
+        let filtroAtivo = 'todos';
+
+        async function carregarAgendamentos() {
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('lista-agendamentos').classList.add('hidden');
+            document.getElementById('estado-vazio').classList.add('hidden');
+
+            try {
+                const resp = await fetch('/api/agendamentos');
+                if (!resp.ok) throw new Error('Erro ao buscar dados');
+                todosAgendamentos = await resp.json();
+                atualizarContadores();
+                renderizar();
+            } catch (e) {
+                document.getElementById('loading').innerHTML = `
+                    <i class="fas fa-exclamation-triangle text-3xl mb-3 text-red-400"></i>
+                    <div class="text-red-500">Erro ao conectar com o servidor.<br><small>${e.message}</small></div>
+                `;
+            }
+        }
+
+        function atualizarContadores() {
+            document.getElementById('total-count').textContent = todosAgendamentos.length;
+            document.getElementById('pendente-count').textContent = todosAgendamentos.filter(a => a.status === 'pendente').length;
+            document.getElementById('andamento-count').textContent = todosAgendamentos.filter(a => a.status === 'em_andamento').length;
+            document.getElementById('concluido-count').textContent = todosAgendamentos.filter(a => a.status === 'concluido').length;
+            document.getElementById('cancelado-count').textContent = todosAgendamentos.filter(a => a.status === 'cancelado').length;
+        }
+
+        function renderizar() {
+            const busca = document.getElementById('busca').value.toLowerCase();
+
+            let lista = todosAgendamentos.filter(a => {
+                const filtroOk = filtroAtivo === 'todos' || a.status === filtroAtivo;
+                const buscaOk = !busca || a.nome.toLowerCase().includes(busca) || a.endereco.toLowerCase().includes(busca);
+                return filtroOk && buscaOk;
+            });
+
+            document.getElementById('loading').classList.add('hidden');
+
+            if (lista.length === 0) {
+                document.getElementById('lista-agendamentos').classList.add('hidden');
+                document.getElementById('estado-vazio').classList.remove('hidden');
+                return;
+            }
+
+            document.getElementById('estado-vazio').classList.add('hidden');
+            const container = document.getElementById('lista-agendamentos');
+            container.innerHTML = '';
+            container.classList.remove('hidden');
+
+            lista.forEach(ag => {
+                const dataFormatada = new Date(ag.data_coleta + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short' });
+
+                const statusMap = {
+                    pendente: { label: 'Pendente', icon: 'fa-clock', cls: 'status-pendente' },
+                    em_andamento: { label: 'Em andamento', icon: 'fa-truck', cls: 'status-em_andamento' },
+                    concluido: { label: 'Concluído', icon: 'fa-check-circle', cls: 'status-concluido' },
+                    cancelado: { label: 'Cancelado', icon: 'fa-times-circle', cls: 'status-cancelado' },
+                };
+                const s = statusMap[ag.status] || statusMap['pendente'];
+
+                const card = document.createElement('div');
+                card.className = 'card-coleta bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex flex-col md:flex-row md:items-center gap-4';
+                card.innerHTML = `
+                    <div class="flex-grow">
+                        <div class="flex items-center gap-3 mb-2 flex-wrap">
+                            <span class="font-bold text-slate-800 text-lg">${ag.nome}</span>
+                            <span class="status-badge ${s.cls}"><i class="fas ${s.icon}"></i>${s.label}</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm text-slate-500">
+                            <div><i class="fas fa-map-marker-alt text-emerald-500 mr-1"></i>${ag.endereco}</div>
+                            <div><i class="fas fa-phone text-emerald-500 mr-1"></i>${ag.telefone}</div>
+                            <div><i class="fas fa-calendar text-emerald-500 mr-1"></i>${dataFormatada}</div>
+                        </div>
+                        <div class="mt-2 text-sm">
+                            <span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full font-semibold"><i class="fas fa-recycle mr-1 text-emerald-500"></i>${ag.tipo_residuo}</span>
+                            ${ag.observacoes ? `<span class="ml-2 text-slate-400"><i class="fas fa-comment mr-1"></i>${ag.observacoes}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-2 min-w-[160px]">
+                        ${ag.status !== 'em_andamento' && ag.status !== 'concluido' && ag.status !== 'cancelado' ? `
+                        <button onclick="atualizarStatus(${ag.id}, 'em_andamento')" class="bg-blue-600 text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-blue-700 transition">
+                            <i class="fas fa-truck mr-1"></i>Iniciar Coleta
+                        </button>` : ''}
+                        ${ag.status === 'em_andamento' ? `
+                        <button onclick="atualizarStatus(${ag.id}, 'concluido')" class="bg-emerald-600 text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-emerald-700 transition">
+                            <i class="fas fa-check mr-1"></i>Marcar Concluído
+                        </button>` : ''}
+                        ${ag.status === 'concluido' ? `
+                        <div class="text-center text-emerald-600 font-semibold text-sm"><i class="fas fa-check-double mr-1"></i>Coleta finalizada</div>
+                        ` : ''}
+                        ${ag.status !== 'concluido' && ag.status !== 'cancelado' ? `
+                        <button onclick="cancelarAgendamento(${ag.id})" class="bg-red-50 text-red-600 border border-red-200 text-sm font-semibold px-4 py-2 rounded-xl hover:bg-red-100 transition">
+                            <i class="fas fa-times mr-1"></i>Cancelar
+                        </button>` : ''}
+                        ${ag.status === 'cancelado' ? `
+                        <div class="text-center text-red-500 font-semibold text-sm"><i class="fas fa-times-circle mr-1"></i>Coleta cancelada</div>
+                        ` : ''}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        async function cancelarAgendamento(id) {
+            if (!confirm('Tem certeza que deseja cancelar esta coleta?')) return;
+            await atualizarStatus(id, 'cancelado');
+        }
+
+        async function atualizarStatus(id, novoStatus) {
+            try {
+                const resp = await fetch(`/api/agendamento/${id}/status`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: novoStatus })
+                });
+                if (!resp.ok) throw new Error('Falha ao atualizar');
+                // Atualizar localmente sem nova requisição
+                const idx = todosAgendamentos.findIndex(a => a.id === id);
+                if (idx !== -1) todosAgendamentos[idx].status = novoStatus;
+                atualizarContadores();
+                renderizar();
+            } catch (e) {
+                alert('Erro ao atualizar status: ' + e.message);
+            }
+        }
+
+        function filtrar(tipo) {
+            filtroAtivo = tipo;
+            document.querySelectorAll('.filtro-btn').forEach(b => {
+                b.classList.remove('bg-green-600', 'text-white');
+                b.classList.add('bg-slate-100', 'text-slate-600');
+            });
+            event.currentTarget.classList.add('bg-green-600', 'text-white');
+            event.currentTarget.classList.remove('bg-slate-100', 'text-slate-600');
+            renderizar();
+        }
+
+        function buscar() { renderizar(); }
+
+        // Carregar ao abrir
+        carregarAgendamentos();
+
+        // Atualizar automaticamente a cada 60s
+        setInterval(carregarAgendamentos, 60000);
+    </script>
+</body>
+</html>

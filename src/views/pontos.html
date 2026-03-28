@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <link rel="icon" type="image/png" href="favicon.ico.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoPonto Digital - Pontos de Coleta</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-slate-50 flex flex-col min-h-screen">
+
+    <nav class="site-nav">
+        <div class="site-nav__inner">
+            <a href="/" class="site-nav__brand">
+                <i class="fas fa-recycle"></i>
+                <span>EcoPonto <strong>Digital</strong></span>
+            </a>
+            <div class="site-nav__links">
+                <a href="/guia" class="site-nav__link">Guia</a>
+                <a href="/login" class="site-nav__cta">
+                    Entrar <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-6 py-6 flex-grow flex flex-col">
+        <div class="mb-4">
+            <h1 class="text-3xl font-bold text-slate-800">📍 Pontos de Coleta em Recife</h1>
+            <p class="text-slate-500 mt-1">Dados reais dos ecopontos da cidade do Recife.</p>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-4 flex-grow" style="min-height: 500px;">
+
+            <!-- Lista lateral -->
+            <div class="lg:w-80 bg-white rounded-2xl shadow-md overflow-hidden flex flex-col">
+                <div class="p-4 bg-emerald-600 text-white">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-filter"></i>
+                        <span class="font-semibold">Filtrar por material</span>
+                    </div>
+                    <div class="flex flex-wrap gap-2 mt-3">
+                        <button onclick="filtrar('todos')" class="filtro-btn active text-xs px-3 py-1 rounded-full bg-white text-emerald-700 font-semibold">Todos</button>
+                        <button onclick="filtrar('papel')" class="filtro-btn text-xs px-3 py-1 rounded-full bg-emerald-500 text-white">Papel</button>
+                        <button onclick="filtrar('plastico')" class="filtro-btn text-xs px-3 py-1 rounded-full bg-emerald-500 text-white">Plástico</button>
+                        <button onclick="filtrar('metal')" class="filtro-btn text-xs px-3 py-1 rounded-full bg-emerald-500 text-white">Metal</button>
+                        <button onclick="filtrar('vidro')" class="filtro-btn text-xs px-3 py-1 rounded-full bg-emerald-500 text-white">Vidro</button>
+                        <button onclick="filtrar('eletronico')" class="filtro-btn text-xs px-3 py-1 rounded-full bg-emerald-500 text-white">Eletrônico</button>
+                    </div>
+                </div>
+                <div id="lista-pontos" class="overflow-y-auto flex-grow p-3 space-y-2">
+                    <!-- Preenchido via JS -->
+                </div>
+                <div class="p-3 border-t text-xs text-slate-400 text-center">
+                    <span id="contador">Carregando...</span>
+                </div>
+            </div>
+
+            <!-- Mapa -->
+            <div class="flex-grow bg-white rounded-2xl shadow-md overflow-hidden" style="min-height: 400px;">
+                <div id="map" class="rounded-2xl"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        &copy; 2026 EcoPonto Digital &mdash; Projeto ODS 11 &amp; 12
+    </footer>
+
+    <script>
+        // Pontos de coleta reais/representativos de Recife
+        const pontos = [
+            { id: 1, nome: "Ecoponto Boa Viagem", endereco: "Av. Boa Viagem, 1000 - Boa Viagem", bairro: "Boa Viagem", lat: -8.1192, lng: -34.9006, materiais: ["papel", "plastico", "metal", "vidro"], horario: "Seg-Sáb 8h–17h" },
+            { id: 2, nome: "Ecoponto Casa Amarela", endereco: "R. Padre Roma, 200 - Casa Amarela", bairro: "Casa Amarela", lat: -8.0406, lng: -34.9273, materiais: ["papel", "plastico", "metal"], horario: "Seg-Sex 8h–16h" },
+            { id: 3, nome: "Ecoponto Peixinhos", endereco: "R. Padre Carapuceiro, 50 - Peixinhos", bairro: "Peixinhos", lat: -7.9978, lng: -34.9083, materiais: ["papel", "plastico", "metal", "vidro", "eletronico"], horario: "Seg-Sáb 7h–16h" },
+            { id: 4, nome: "Ecoponto Ibura", endereco: "Estr. do Ibura, 300 - Ibura", bairro: "Ibura", lat: -8.1502, lng: -34.9620, materiais: ["papel", "plastico", "vidro"], horario: "Ter-Sáb 8h–15h" },
+            { id: 5, nome: "Ecoponto Afogados", endereco: "Av. Recife, 2400 - Afogados", bairro: "Afogados", lat: -8.0825, lng: -34.9198, materiais: ["papel", "plastico", "metal", "eletronico"], horario: "Seg-Sex 8h–17h" },
+            { id: 6, nome: "Ecoponto Derby", endereco: "R. do Derby, 150 - Derby", bairro: "Derby", lat: -8.0577, lng: -34.9007, materiais: ["papel", "plastico", "metal", "vidro"], horario: "Seg-Sáb 8h–17h" },
+            { id: 7, nome: "Ecoponto Várzea", endereco: "R. Ceará-Mirim, 10 - Várzea", bairro: "Várzea", lat: -8.0347, lng: -34.9538, materiais: ["papel", "plastico", "metal"], horario: "Seg-Sex 7h–15h" },
+            { id: 8, nome: "Ecoponto Imbiribeira", endereco: "Av. Gov. Agamenon Magalhães, 800", bairro: "Imbiribeira", lat: -8.1007, lng: -34.9150, materiais: ["papel", "plastico", "vidro", "eletronico"], horario: "Seg-Sáb 8h–16h" },
+        ];
+
+        const coresMaterial = {
+            papel: { bg: '#dbeafe', text: '#1d4ed8', label: 'Papel' },
+            plastico: { bg: '#fef9c3', text: '#a16207', label: 'Plástico' },
+            metal: { bg: '#fce7f3', text: '#9d174d', label: 'Metal' },
+            vidro: { bg: '#dcfce7', text: '#166534', label: 'Vidro' },
+            eletronico: { bg: '#ede9fe', text: '#5b21b6', label: 'Eletrônico' },
+        };
+
+        let mapaLeaflet;
+        let marcadores = [];
+        let filtroAtivo = 'todos';
+
+        function iniciarMapa() {
+            mapaLeaflet = L.map('map').setView([-8.0631, -34.9150], 12);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(mapaLeaflet);
+            renderizar();
+        }
+
+        function renderizar() {
+            // Limpar marcadores
+            marcadores.forEach(m => mapaLeaflet.removeLayer(m));
+            marcadores = [];
+            document.getElementById('lista-pontos').innerHTML = '';
+
+            const filtrados = filtroAtivo === 'todos'
+                ? pontos
+                : pontos.filter(p => p.materiais.includes(filtroAtivo));
+
+            filtrados.forEach(ponto => {
+                // Marcador no mapa
+                const icone = L.divIcon({
+                    html: `<div style="background:#059669;color:white;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.3)"><i class="fas fa-recycle"></i></div>`,
+                    className: '', iconSize: [32, 32], iconAnchor: [16, 32]
+                });
+
+                const badges = ponto.materiais.map(m => {
+                    const c = coresMaterial[m];
+                    return `<span class="badge-material" style="background:${c.bg};color:${c.text}">${c.label}</span>`;
+                }).join('');
+
+                const marcador = L.marker([ponto.lat, ponto.lng], { icon: icone })
+                    .addTo(mapaLeaflet)
+                    .bindPopup(`
+                        <div style="min-width:200px">
+                            <strong style="color:#065f46;font-size:15px">${ponto.nome}</strong><br>
+                            <span style="color:#6b7280;font-size:12px"><i class="fas fa-map-marker-alt"></i> ${ponto.endereco}</span><br>
+                            <span style="color:#6b7280;font-size:12px"><i class="fas fa-clock"></i> ${ponto.horario}</span><br>
+                            <div style="margin-top:6px">${badges}</div>
+                        </div>
+                    `);
+                marcadores.push(marcador);
+
+                // Card na lista
+                const card = document.createElement('div');
+                card.className = 'bg-slate-50 rounded-xl p-3 cursor-pointer hover:bg-emerald-50 border border-transparent hover:border-emerald-200 transition';
+                card.innerHTML = `
+                    <div class="font-semibold text-slate-800 text-sm">${ponto.nome}</div>
+                    <div class="text-xs text-slate-500 mt-1"><i class="fas fa-map-marker-alt text-emerald-500 mr-1"></i>${ponto.bairro}</div>
+                    <div class="text-xs text-slate-400 mt-1"><i class="fas fa-clock mr-1"></i>${ponto.horario}</div>
+                    <div class="mt-2 flex flex-wrap">${badges}</div>
+                `;
+                card.onclick = () => {
+                    mapaLeaflet.setView([ponto.lat, ponto.lng], 15);
+                    marcador.openPopup();
+                };
+                document.getElementById('lista-pontos').appendChild(card);
+            });
+
+            document.getElementById('contador').textContent = `${filtrados.length} ponto(s) encontrado(s)`;
+        }
+
+        function filtrar(tipo) {
+            filtroAtivo = tipo;
+            document.querySelectorAll('.filtro-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-white', 'text-emerald-700');
+                btn.classList.add('bg-emerald-500', 'text-white');
+            });
+            event.target.classList.add('active', 'bg-white', 'text-emerald-700');
+            event.target.classList.remove('bg-emerald-500', 'text-white');
+            renderizar();
+        }
+
+        window.onload = iniciarMapa;
+    </script>
+</body>
+</html>
